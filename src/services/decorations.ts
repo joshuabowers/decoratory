@@ -1,11 +1,12 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
+import { 
+  baseApi, browseTags, readTags, editTags, addTags, destroyTags
+} from '../app/baseApi'
 import { doc, getDoc, getDocs, setDoc, deleteDoc } from 'firebase/firestore'
-import { db, Decoration, Identifiable } from '../../app/database'
+import { 
+  db, Decoration, Model, IdentifiableModel, DestroyResult
+} from '../app/database'
 
-export const decorationsApi = createApi({
-  reducerPath: 'decorations',
-  baseQuery: fakeBaseQuery(),
-  tagTypes: ['Decoration'],
+export const decorationsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     browseDecorations: builder.query({
       queryFn: async () => {
@@ -16,12 +17,7 @@ export const decorationsApi = createApi({
           return { error }
         }
       },
-      providesTags: (result) => (
-        result ? [
-          ...result.map(({ id }) => ({ type: 'Decoration', id } as const)),
-          { type: 'Decoration', id: 'LIST' }
-        ] : [{ type: 'Decoration', id: 'LIST' }]
-      )
+      providesTags: browseTags('Decoration')
     }),
     readDecoration: builder.query({
       queryFn: async (id: string) => {
@@ -33,9 +29,9 @@ export const decorationsApi = createApi({
           return { error }
         }
       },
-      providesTags: (_result, _error, id) => [{ type: 'Decoration', id }]
+      providesTags: readTags('Decoration')
     }),
-    editDecoration: builder.mutation<Decoration, Partial<Omit<Decoration, 'id'>> & Identifiable>({
+    editDecoration: builder.mutation<Decoration, IdentifiableModel<Decoration>>({
       queryFn: async ({id, ...data}) => {
         try {
           const ref = doc(db.decorations, id)
@@ -46,9 +42,9 @@ export const decorationsApi = createApi({
           return { error }
         }
       },
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'Decoration', id }]
+      invalidatesTags: editTags('Decoration')
     }),
-    addDecoration: builder.mutation<Decoration, Partial<Omit<Decoration, 'id'>>>({
+    addDecoration: builder.mutation<Decoration, Model<Decoration>>({
       queryFn: async (data) => {
         try {
           const ref = doc(db.decorations)
@@ -59,9 +55,9 @@ export const decorationsApi = createApi({
           return { error }
         }
       },
-      invalidatesTags: [{ type: 'Decoration', id: 'LIST' }]
+      invalidatesTags: addTags('Decoration')
     }),
-    destroyDecoration: builder.mutation<{ success: boolean, id: string }, string>({
+    destroyDecoration: builder.mutation<DestroyResult, string>({
       queryFn: async (id) => {
         try {
           const ref = doc(db.decorations, id)
@@ -71,7 +67,7 @@ export const decorationsApi = createApi({
           return { error }
         }
       },
-      invalidatesTags: (_result, _error, id) => [{ type: 'Decoration', id }]
+      invalidatesTags: destroyTags('Decoration')
     }) 
   })
 })

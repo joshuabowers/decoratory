@@ -27,6 +27,24 @@ export interface Decoration extends Identifiable {
   categories: string[]
 }
 
+export interface Container extends Identifiable {
+  name: string
+  sequence: number
+  color: string
+  type: 'tub' | 'box'
+}
+
+export interface Scene extends Identifiable {
+  name: string
+  example: string
+}
+
+export type Model<T extends Identifiable> = Partial<Omit<T, 'id'>>
+export type IdentifiableModel<T extends Identifiable> = Model<T> & Identifiable
+export type DestroyResult = {success: boolean} & Identifiable
+
 export const db = {
-  decorations: typedCollection<Decoration>('decorations')
+  decorations: typedCollection<Decoration>('decorations'),
+  containers: typedCollection<Container>('containers'),
+  scenes: typedCollection<Scene>('scenes')
 }
