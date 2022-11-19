@@ -1,0 +1,8 @@
+.normal {
+  display: grid;
+  grid: repeat(1fr, 4) / auto-flow 5em;
+}
+
+.normal a {
+  display: block;
+}

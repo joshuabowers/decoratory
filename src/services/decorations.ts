@@ -6,10 +6,16 @@ import {
   db, Decoration, Model, IdentifiableModel, DestroyResult
 } from '../app/database'
 
+export interface BrowseDecorationsQuery {
+  container?: string
+  scene?: string
+  text?: string
+}
+
 export const decorationsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    browseDecorations: builder.query({
-      queryFn: async () => {
+    browseDecorations: builder.query<Decoration[], BrowseDecorationsQuery>({
+      queryFn: async (query: BrowseDecorationsQuery) => {
         try {
           const snapshot = await getDocs(db.decorations)
           return { data: snapshot.docs.map(d => d.data()) }
@@ -19,7 +25,7 @@ export const decorationsApi = baseApi.injectEndpoints({
       },
       providesTags: browseTags('Decoration')
     }),
-    readDecoration: builder.query({
+    readDecoration: builder.query<Decoration, string>({
       queryFn: async (id: string) => {
         try {
           const ref = doc(db.decorations, id)
