@@ -1,0 +1,14 @@
+.normal {
+  display: grid;
+  grid: repeat(1fr, 4) / auto-flow 5em;
+  --container-color: hsl(0, 5%, 5%);
+}
+
+.normal a {
+  display: block;
+  background: var(--container-color);
+  border-top-left-radius: 0.25em;
+  border-top-right-radius: 0.25em;
+  border-bottom-left-radius: 1em;
+  border-bottom-right-radius: 1em;
+}

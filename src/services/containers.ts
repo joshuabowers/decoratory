@@ -6,10 +6,19 @@ import {
 } from "../app/database";
 import { doc, getDoc, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 
+export interface BrowseContainersQuery {
+  name?: string
+}
+
+export const labelFor = (container: Container) => 
+  `${
+    container.name.split(/\s/).map(s => s[0].toUpperCase()).join('')
+  }-${container.sequence}`
+
 export const containersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    browseContainers: builder.query({
-      queryFn: async () => {
+    browseContainers: builder.query<Container[], BrowseContainersQuery>({
+      queryFn: async (query) => {
         try {
           const snapshot = await getDocs(db.containers)
           return { data: snapshot.docs.map(d => d.data()) }
@@ -19,7 +28,7 @@ export const containersApi = baseApi.injectEndpoints({
       },
       providesTags: browseTags('Container')
     }),
-    readContainer: builder.query({
+    readContainer: builder.query<Container, string>({
       queryFn: async (id: string) => {
         try {
           const container = await getDoc(doc(db.containers, id))
